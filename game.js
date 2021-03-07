@@ -2,7 +2,11 @@ var config = {
     type: Phaser.AUTO,
     width: 896,
     height: 1024,
-    parent: 'phaser-example',
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH
+    },
+    parent: 'phaser-game',
     pixelArt: true,
     backgroundColor: '#000000',
     physics: {
@@ -29,7 +33,7 @@ var timer = 0;
 
 var keys = [];
 
-var NUM_ENEMIES = 20;
+var NUM_ENEMIES = 13;
 
 var PLAYER_VELOCITY = 160;
 
@@ -45,6 +49,9 @@ function preload ()
     this.load.image('player', 'player.png');
     this.load.image('goal', 'goal.png');
     this.load.image('enemy', 'enemy.png');
+    this.load.image('logo', 'img/logo.png');
+
+    this.load.bitmapFont('8bit', 'fonts/8bit.png', 'fonts/8bit.xml');
 }
 
 // The directions are 0(up), 1(right), 2(down), 3(left)
@@ -78,6 +85,16 @@ function update() {
         player.angle = 0;
         player.flipX = true;
     }
+
+    // Sense if player is colliding with ghost
+    enemies.forEach(function(e) {
+        
+        if(!Phaser.Geom.Rectangle.Overlaps(e.getBounds(), player.getBounds())) {
+
+            // If there's overlap, increase the player's viral load
+            this.viralLoad += 1;
+        }
+    });
 }
 
 function updateEnemies() {
@@ -187,11 +204,23 @@ function create ()
     goal.active = false;
     goal.visible = false;
 
+    var enemyColors = [
+        0x7FDBFF,
+        0x39CCCC,
+        0x2ECC40,
+        0x01FF70,
+        0xFFDC00,
+        0xFF851B,
+        0xFF4136,
+        0xF012BE,
+        0xB10DC9 ];
+
     // Spawn enemies all over the map
     for (var i = 0; i < NUM_ENEMIES; i++) {
         var xy = findValidRandomXY();
         var enemy = this.add.sprite(xy[0] * 32 + 16, xy[1] * 32 + 16, 'enemy');
-        enemy.tint = Math.random() * 0xffffff;
+        console.log(enemyColors[i % enemyColors.length]);
+        enemy.tint = enemyColors[i % enemyColors.length]; // rnd(0x666666, 0xffffff); // Math.random() * 0xffffff;
         enemy.data = [];
         enemy.data.direction = rnd(0, 3);
         enemies.push(enemy);
