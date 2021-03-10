@@ -25,12 +25,14 @@ var config = {
 var game = new Phaser.Game(config);
 var scene;
 var player;
+var swipeDir = [false, false, false, false]; // Stores boolean values in cardinals
 var enemies = [];
 var goal = null;
 var viralLoad = 0;
 var layer;
 var timer = 0;
 
+var cursors;
 var keys = [];
 
 var NUM_ENEMIES = 13;
@@ -52,6 +54,12 @@ function preload ()
     this.load.image('logo', 'img/logo.png');
 
     this.load.bitmapFont('8bit', 'fonts/8bit.png', 'fonts/8bit.xml');
+
+    this.load.scenePlugin({
+        key: 'rexgesturesplugin',
+        url: 'rexgesturesplugin.min.js',
+        sceneKey: 'rexGestures'
+    });
 }
 
 // The directions are 0(up), 1(right), 2(down), 3(left)
@@ -64,23 +72,46 @@ var directionDeltas = {
 
 function update() {
 
+    // Setup swipe to work like a virtual joystick that remembers the
+    // last swipe until a new one is issued. Unlike the keyboard controls,
+    // up+down and left+right are not possible, so one turns off the other.
+    if (this.swipeInput.isSwiped) {
+
+        // Reset the joystick
+        swipeDir[D_UP] = swipeDir[D_RIGHT] = swipeDir[D_DOWN] = swipeDir[D_LEFT] = false;
+
+        // Point the joystick in the new direction
+        if (this.swipeInput['up']) {
+            swipeDir[D_UP] = true;
+        }
+        if (this.swipeInput['right']) {
+            swipeDir[D_RIGHT] = true;
+        }
+        if (this.swipeInput['down']) {
+            swipeDir[D_DOWN] = true;
+        }
+        if (this.swipeInput['left']) {
+            swipeDir[D_LEFT] = true;
+        }
+    } 
+
     // Handle the input to control the player
-    if (keys['KEY_W'].isDown) {
+    if (keys['KEY_W'].isDown || cursors.up.isDown || swipeDir[D_UP]) {
         player.body.setVelocityY(-PLAYER_VELOCITY);
         player.angle = -90;
         player.flipX = false;
     }
-    if (keys['KEY_D'].isDown) {
+    if (keys['KEY_D'].isDown || cursors.right.isDown || swipeDir[D_RIGHT]) {
         player.body.setVelocityX(PLAYER_VELOCITY);
         player.angle = 0;
         player.flipX = false;
     }
-    if (keys['KEY_S'].isDown) {
+    if (keys['KEY_S'].isDown || cursors.down.isDown || swipeDir[D_DOWN]) {
         player.body.setVelocityY(PLAYER_VELOCITY);
         player.angle = 90;
         player.flipX = false;
     }
-    if (keys['KEY_A'].isDown) {
+    if (keys['KEY_A'].isDown || cursors.left.isDown || swipeDir[D_LEFT]) {
         player.body.setVelocityX(-PLAYER_VELOCITY);
         player.angle = 0;
         player.flipX = true;
@@ -233,7 +264,12 @@ function create ()
     keys['KEY_W'] = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W); 
     keys['KEY_A'] = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A); 
     keys['KEY_S'] = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S); 
-    keys['KEY_D'] = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D); 
+    keys['KEY_D'] = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+
+    cursors = this.input.keyboard.createCursorKeys();
+
+    // Setup the swipe controls
+    this.swipeInput = this.rexGestures.add.swipe({ velocityThreshold: 1000 });
 }
 
 function findValidRandomXY() {
