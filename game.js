@@ -29,6 +29,7 @@ var swipeDir = [false, false, false, false]; // Stores boolean values in cardina
 var enemies = [];
 var goal = null;
 var viralLoad = 0;
+var viralLoadBar;
 var layer;
 var timer = 0;
 var scoreText;
@@ -215,6 +216,11 @@ function updateEnemies() {
 function setScore(score) {
     scoreText.setText('VIRAL\nLOAD:\n' + right('     ' + parseInt(score) + '%', 5));
     scoreText.visible = true;
+
+    viralLoadBar.width = (32 * 5) * (score * 0.01);
+    if (score > 90) {
+        viralLoadBar.setFillStyle(0xff0000, 1);
+    }
 }
 
 function create () {
@@ -239,6 +245,8 @@ function create () {
     goal = this.physics.add.sprite(0, 0, 'goal');
     goal.active = false;
     goal.visible = false;
+
+    viralLoadBar = this.add.rectangle(375, 495, 0, 37, 0x00ff00);
 
     scoreText = this.add.bitmapText(375, 417, '8bit', '', 32).setOrigin(0).setLeftAlign();
     setScore(0);
