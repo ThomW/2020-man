@@ -31,6 +31,7 @@ var goal = null;
 var viralLoad = 0;
 var layer;
 var timer = 0;
+var scoreText;
 
 var cursors;
 var keys = [];
@@ -119,11 +120,11 @@ function update() {
 
     // Sense if player is colliding with ghost
     enemies.forEach(function(e) {
-        
-        if(!Phaser.Geom.Rectangle.Overlaps(e.getBounds(), player.getBounds())) {
 
-            // If there's overlap, increase the player's viral load
-            this.viralLoad += 1;
+        // If there's overlap, increase the player's viral load
+        if(Phaser.Geom.Rectangle.Overlaps(e.getBounds(), player.getBounds())) {
+            this.viralLoad += 0.25;
+            setScore(this.viralLoad);
         }
     });
 }
@@ -211,8 +212,12 @@ function updateEnemies() {
     });
 }
 
-function create ()
-{
+function setScore(score) {
+    scoreText.setText('VIRAL\nLOAD:\n' + right('     ' + parseInt(score) + '%', 5));
+    scoreText.visible = true;
+}
+
+function create () {
     // Store the scene to a variable to make it easier to access later
     scene = this;
 
@@ -234,6 +239,9 @@ function create ()
     goal = this.physics.add.sprite(0, 0, 'goal');
     goal.active = false;
     goal.visible = false;
+
+    scoreText = this.add.bitmapText(375, 417, '8bit', '', 32).setOrigin(0).setLeftAlign();
+    setScore(0);
 
     var enemyColors = [
         0x7FDBFF,
@@ -300,4 +308,13 @@ function startGoalTimer() {
 // Returns an integer random number within our min/max range
 function rnd(min, max) {
     return Math.round(Math.random() * (max - min) + min);
+}
+
+// Returns right-most characters in a string
+function right(str, chr) {
+    return str.substr(str.length - chr, str.length);
+}
+// Returns left-most characters in a string
+function left(str, chr) {
+    return str.substr(0, chr);
 }
