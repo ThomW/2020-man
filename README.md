@@ -6,6 +6,13 @@ I've always loved Pac-Man. When I was a kid, I worked out moving enemies toward 
 
 I keep thinking about this project and kind of want to see it through, and adding it to Github lets me access it from more than one machine in the house. :D
 
-CREDITS: 
+## CREDITS: 
 
+* <Phaser.io> is the game engine
 * Uses [rexgesturesplugin](https://rexrainbow.github.io/phaser3-rex-notes/docs/site/gesture-swipe/) for touchscreen swipe controls
+
+## TOOLS
+
+* Visual Studio Code
+* Developed graphics in [Pyxel Edit](https://pyxeledit.com/) and [Pixelmator for MacOS](https://www.pixelmator.com/pro/)
+
