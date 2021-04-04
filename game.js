@@ -259,7 +259,7 @@ function create () {
     goal.active = false;
     goal.visible = false;
 
-    viralLoadBar = this.add.rectangle(375, 495, 0, 37, 0x00ff00);
+    viralLoadBar = this.add.rectangle(375, 497, 0, 30, 0x00ff00);
 
     scoreText = this.add.bitmapText(375, 417, '8bit', '', 32).setOrigin(0).setLeftAlign();
     setScore(0);
