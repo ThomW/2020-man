@@ -198,8 +198,10 @@ function updateEnemies() {
             repeat: 0
         });
     
-        // Enemy grabbed the goal, so despawn it
+        // Test goal collisions
         if (goal.active) {
+
+            // Enemy grabbed the goal, so despawn it
             if (e.x == goal.x && e.y == goal.y) {
 
                 // Deactivate the goal
@@ -209,6 +211,17 @@ function updateEnemies() {
                 // Set timer to respawn goal
                 startGoalTimer();
             }
+
+            // Check to see if the player grabbed the goal
+            if(Phaser.Geom.Rectangle.Overlaps(goal.getBounds(), player.getBounds())) {
+                goal.active = false;
+                goal.visible = false;
+
+                // Don't respawn the goal!
+
+                // Tell the player to exit the maze with their loot
+            }
+
         }
     });
 }
