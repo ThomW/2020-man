@@ -8,7 +8,7 @@ I keep thinking about this project and kind of want to see it through, and addin
 
 ## CREDITS: 
 
-* <Phaser.io> is the game engine
+* Phaser.io is the game engine
 * Uses [rexgesturesplugin](https://rexrainbow.github.io/phaser3-rex-notes/docs/site/gesture-swipe/) for touchscreen swipe controls
 
 ## TOOLS
