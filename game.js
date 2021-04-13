@@ -47,13 +47,16 @@ var D_UP = 0, D_RIGHT = 1, D_DOWN = 2, D_LEFT = 3;
 
 function preload ()
 {
+    this.load.spritesheet('enemies', 'img/enemies.png', { frameWidth: 16, frameHeight: 16 });
+    this.load.spritesheet('player', 'img/player.png', { frameWidth: 16, frameHeight: 16 });
+
     this.load.image('maze', 'maze.png');
     this.load.tilemapCSV('maze', 'maze.csv');
 
-    this.load.image('player', 'player.png');
     this.load.image('goal', 'goal.png');
     this.load.image('enemy', 'enemy.png');
     this.load.image('logo', 'img/logo.png');
+    this.load.image('scanlines', 'img/scanlines.png');
 
     this.load.bitmapFont('8bit', 'fonts/8bit.png', 'fonts/8bit.xml');
 
@@ -100,23 +103,19 @@ function update() {
     // Handle the input to control the player
     if (keys['KEY_W'].isDown || cursors.up.isDown || swipeDir[D_UP]) {
         player.body.setVelocityY(-PLAYER_VELOCITY);
-        player.angle = -90;
-        player.flipX = false;
+        player.setFrame(0);
     }
     if (keys['KEY_D'].isDown || cursors.right.isDown || swipeDir[D_RIGHT]) {
         player.body.setVelocityX(PLAYER_VELOCITY);
-        player.angle = 0;
-        player.flipX = false;
+        player.setFrame(1);
     }
     if (keys['KEY_S'].isDown || cursors.down.isDown || swipeDir[D_DOWN]) {
         player.body.setVelocityY(PLAYER_VELOCITY);
-        player.angle = 90;
-        player.flipX = false;
+        player.setFrame(2);
     }
     if (keys['KEY_A'].isDown || cursors.left.isDown || swipeDir[D_LEFT]) {
         player.body.setVelocityX(-PLAYER_VELOCITY);
-        player.angle = 0;
-        player.flipX = true;
+        player.setFrame(3);
     }
 
     // Sense if player is colliding with ghost
@@ -187,6 +186,9 @@ function updateEnemies() {
 
         e.data.targetX = e.x + directionDeltas[e.data.direction][0];
         e.data.targetY = e.y + directionDeltas[e.data.direction][1];
+
+        // Update the enemy's sprite to point in the correct direction
+        e.setFrame(e.data.tileIdx + e.data.direction);
         
         e.data.tween = scene.tweens.add({
             duration: GHOST_UPDATE_FREQUENCY - 1,
@@ -249,7 +251,9 @@ function create () {
     layer.setCollisionBetween(0, 10);
 
     // Add the player sprite and make it react to arcade physics
-    player = this.physics.add.sprite(48, 48, 'player');
+    player = this.physics.add.sprite(48, 48, 'player', 0);
+    player.body.setSize(8, 8, 16, 16);
+    player.setScale(4);
 
     // Setup collider between player and the maze
     this.physics.add.collider(player, layer);
@@ -264,24 +268,13 @@ function create () {
     scoreText = this.add.bitmapText(375, 417, '8bit', '', 32).setOrigin(0).setLeftAlign();
     setScore(0);
 
-    var enemyColors = [
-        0x7FDBFF,
-        0x39CCCC,
-        0x2ECC40,
-        0x01FF70,
-        0xFFDC00,
-        0xFF851B,
-        0xFF4136,
-        0xF012BE,
-        0xB10DC9 ];
-
     // Spawn enemies all over the map
     for (var i = 0; i < NUM_ENEMIES; i++) {
         var xy = findValidRandomXY();
-        var enemy = this.add.sprite(xy[0] * 32 + 16, xy[1] * 32 + 16, 'enemy');
-        console.log(enemyColors[i % enemyColors.length]);
-        enemy.tint = enemyColors[i % enemyColors.length]; // rnd(0x666666, 0xffffff); // Math.random() * 0xffffff;
+        var enemyTileIdx = (i % 10) * 4;
+        var enemy = this.add.sprite(xy[0] * 32 + 16, xy[1] * 32 + 16, 'enemies', enemyTileIdx).setScale(4);
         enemy.data = [];
+        enemy.data.tileIdx = enemyTileIdx;
         enemy.data.direction = rnd(0, 3);
         enemies.push(enemy);
     }
@@ -299,6 +292,9 @@ function create () {
 
     // Setup the swipe controls
     this.swipeInput = this.rexGestures.add.swipe({ velocityThreshold: 1000 });
+
+    // Setup scanlines in the middle of the screen
+    this.scanlines = this.add.tileSprite(0, 0, 896, 1024, 'scanlines').setOrigin(0,0);
 }
 
 function findValidRandomXY() {
